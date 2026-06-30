@@ -1,0 +1,10 @@
+{
+  "rezultati": [
+    { "ime": "Tin", "pokusaj": 1 },
+    { "ime": "Nina", "pokusaj": 3 },
+    { "ime": "Luka", "pokusaj": 4 },
+    { "ime": "Vicko", "pokusaj": 5 },
+    { "ime": "Tuci", "pokusaj": 6 },
+    { "ime": "Andrej", "pokusaj": 6 }
+  ]
+}

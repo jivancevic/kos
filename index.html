@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🏀 Pogodi koš — Leaderboard</title>
+<style>
+  :root{
+    --bg:#0b0f1a; --card:#141a2b; --line:#222a40;
+    --gold:#ffd24a; --silver:#cfd6e6; --bronze:#e0925a;
+    --txt:#f4f6fc; --muted:#8b94ad; --accent:#ff6b3d;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:radial-gradient(1200px 600px at 50% -10%, #15203a 0, transparent 60%), var(--bg);
+    color:var(--txt); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh; padding:24px 16px 64px;
+  }
+  .wrap{max-width:560px; margin:0 auto}
+  header{text-align:center; margin-bottom:22px}
+  h1{font-size:26px; margin:0 0 4px; letter-spacing:.3px}
+  .sub{color:var(--muted); font-size:14px}
+  ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+  li{
+    display:flex; align-items:center; gap:14px;
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:14px 16px;
+  }
+  .rank{
+    font-size:22px; font-weight:800; min-width:42px; text-align:center;
+    color:var(--muted);
+  }
+  .medal{font-size:26px; min-width:42px; text-align:center}
+  .name{flex:1; font-size:18px; font-weight:650}
+  .att{font-size:14px; color:var(--muted); white-space:nowrap}
+  .att b{color:var(--txt); font-size:18px}
+  li.top1{border-color:var(--gold); box-shadow:0 0 0 1px var(--gold) inset}
+  li.top2{border-color:var(--silver)}
+  li.top3{border-color:var(--bronze)}
+  footer{text-align:center; color:var(--muted); font-size:12px; margin-top:24px; line-height:1.6}
+  .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:#3ad07a; margin-right:6px; vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🏀 Pogodi koš</h1>
+    <div class="sub">Tko pogodi u najmanje pokušaja • Nova godina</div>
+  </header>
+
+  <ol id="board"></ol>
+
+  <footer>
+    <div><span class="dot"></span>Uživo — osvježava se svakih 15 s</div>
+    <div id="stamp"></div>
+  </footer>
+</div>
+
+<!-- =========================================================== -->
+<!--  ✏️  UREĐIVANJE: promijeni samo ovaj popis dolje.            -->
+<!--  Manji broj pokušaja = bolje mjesto. Redoslijed je nebitan, -->
+<!--  stranica sama sortira i dodjeljuje medalje.                -->
+<!--  Dodaj osobu: nova linija { ime: "Ime", pokusaj: 3 },       -->
+<!-- =========================================================== -->
+<script id="data">
+  const REZULTATI = [
+    { ime: "Tin",    pokusaj: 1 },
+    { ime: "Nina",   pokusaj: 3 },
+    { ime: "Luka",   pokusaj: 4 },
+    { ime: "Vicko",  pokusaj: 5 },
+    { ime: "Tuci",   pokusaj: 6 },
+    { ime: "Andrej", pokusaj: 6 },
+  ];
+</script>
+
+<script>
+  const MEDALS = { 1: "🏆", 2: "🥈", 3: "🥉" };
+
+  function render() {
+    const sorted = [...REZULTATI].sort((a, b) => a.pokusaj - b.pokusaj);
+    const board = document.getElementById("board");
+    board.innerHTML = "";
+
+    let lastVal = null, lastRank = 0;
+    sorted.forEach((r, i) => {
+      // dijeljeno mjesto za isti broj pokušaja
+      const rank = (r.pokusaj === lastVal) ? lastRank : i + 1;
+      lastVal = r.pokusaj; lastRank = rank;
+
+      const li = document.createElement("li");
+      if (rank <= 3) li.className = "top" + rank;
+
+      const medal = MEDALS[rank];
+      const left = medal
+        ? `<div class="medal">${medal}</div>`
+        : `<div class="rank">${rank}.</div>`;
+
+      li.innerHTML = `
+        ${left}
+        <div class="name">${escapeHtml(r.ime)}</div>
+        <div class="att"><b>${r.pokusaj}</b> ${pokusajLabel(r.pokusaj)}</div>
+      `;
+      board.appendChild(li);
+    });
+
+    document.getElementById("stamp").textContent =
+      "Zadnje učitano: " + new Date().toLocaleTimeString("hr-HR");
+  }
+
+  function pokusajLabel(n) {
+    const u = n % 10, d = n % 100;
+    if (u === 1 && d !== 11) return "pokušaj";
+    if (u >= 2 && u <= 4 && (d < 12 || d > 14)) return "pokušaja";
+    return "pokušaja";
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  render();
+  // auto-osvježavanje: ponovo učitaj stranicu (povuče zadnji commit s Pagesa)
+  setTimeout(() => location.reload(), 15000);
+</script>
+</body>
+</html>
